@@ -5,8 +5,8 @@ from app.models import models
 from passlib.context import CryptContext
 
 # --- CONFIGURATION (Sync with Master Admin credentials) ---
-ADMIN_EMAIL = "shrutisharma2308@gmail.com"
-ADMIN_PASSWORD = "gungun" 
+ADMIN_EMAIL = "admin@campus.com"
+ADMIN_PASSWORD = "campus_pulse"  # Change this to a strong password in production
 ADMIN_NAME = "Master Admin"
 # ---------------------
 
