@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Pulse | Experience the Grandeur</title>
+    
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <style>
+        /* Loading Skeletons with Project Colors */
+        .skeleton {
+            background: linear-gradient(90deg, var(--dark-grey) 25%, var(--glass-bg) 50%, var(--dark-grey) 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 12px;
+        }
+        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        
+        .empty-state { 
+            text-align: center; 
+            padding: 5rem 2rem; 
+            grid-column: 1 / -1; 
+            color: var(--sand);
+            border: 1px dashed var(--glass-border);
+            border-radius: 24px;
+        }
+
+        /* Hero Enhancement */
+        .hero { 
+            position: relative; 
+            overflow: hidden; 
+            background: var(--obsidian) !important; 
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .video-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; z-index: 0; opacity: 0.3;
+        }
+        .hero-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(10,10,10,0.2), var(--obsidian)); 
+            z-index: 1;
+        }
+        .hero-content { position: relative; z-index: 2; max-width: 800px; padding: 0 20px; }
+
+        /* Filter Tabs */
+        .filter-container {
+            display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 3rem;
+        }
+        .filter-btn {
+            padding: 10px 24px;
+            border-radius: 100px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--pearl);
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--crimson);
+            border-color: var(--crimson);
+            transform: translateY(-3px);
+        }
+
+        /* Event Cards */
+        .event-card {
+            background: var(--dark-grey);
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            transition: var(--transition);
+        }
+        .event-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--crimson);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <nav data-aos="fade-down">
+        <div class="logo">CAMPUS<span>PULSE</span></div>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="#events">Events</a></li>
+            <li><a href="/login">Portal</a></li>
+        </ul>
+        <a href="/complete-profile" class="btn-primary" style="padding: 10px 25px; font-size: 0.7rem;">JOIN THE FEST</a>
+    </nav>
+
+    <section class="hero">
+        <video class="video-bg" autoplay muted loop playsinline>
+            <source src="/static/BG_Vid.mp4" type="video/mp4">
+        </video>
+        <div class="hero-overlay"></div>
+
+        <div class="hero-content">
+            <h1 data-aos="fade-up" style="font-size: clamp(2.5rem, 8vw, 5rem); line-height: 1;">Experience the <br><span>Pulse</span></h1>
+            <p data-aos="fade-up" data-aos-delay="200" style="color: var(--sand); margin: 1.5rem 0 2.5rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; font-size: 0.8rem;">
+                Music • Tech • Culture • Grandeur
+            </p>
+            <div data-aos="fade-up" data-aos-delay="400">
+                <a href="#events" class="btn-primary">INITIATE EXPLORATION</a>
+            </div>
+        </div>
+    </section>
+
+    <div class="container" id="events" style="padding-top: 80px; padding-bottom: 100px;">
+        <div style="margin-bottom: 3rem;">
+            <span class="input-label" data-aos="fade-right">The Manifest</span>
+            <h2 style="font-size: 2.5rem; font-weight: 900;" data-aos="fade-right" data-aos-delay="100">Live <span style="color: var(--sand);">Events</span></h2>
+        </div>
+        
+        <div id="category-filters" class="filter-container" data-aos="fade-right" data-aos-delay="200">
+            <button onclick="filterEvents('all', this)" class="filter-btn active">All Streams</button>
+        </div>
+
+        <div id="event-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px;">
+            </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ once: true, duration: 1000 });
+
+        let allEvents = [];
+
+        async function loadEvents() {
+            const grid = document.getElementById('event-grid');
+            
+            // Render Skeletons
+            grid.innerHTML = Array(3).fill(0).map((_, i) => `
+                <div class="event-card" style="height: 400px; opacity: 0.5;">
+                    <div class="skeleton" style="height: 220px; width: 100%; border-radius: 0;"></div>
+                    <div style="padding: 2rem;">
+                        <div class="skeleton" style="height: 15px; width: 30%; margin-bottom: 15px;"></div>
+                        <div class="skeleton" style="height: 25px; width: 80%; margin-bottom: 15px;"></div>
+                        <div class="skeleton" style="height: 45px; width: 100%;"></div>
+                    </div>
+                </div>
+            `).join('');
+
+            try {
+                const response = await fetch('/events/');
+                allEvents = await response.json();
+                generateCategoryButtons(allEvents);
+                renderEvents(allEvents);
+            } catch (error) {
+                grid.innerHTML = `<div class="empty-state"><h3>SIGNAL LOST</h3><p>Could not synchronize with campus servers.</p></div>`;
+            }
+        }
+
+        function generateCategoryButtons(events) {
+            const filterContainer = document.getElementById('category-filters');
+            // Clear existing except "All"
+            filterContainer.innerHTML = '<button onclick="filterEvents(\'all\', this)" class="filter-btn active">All Streams</button>';
+            
+            const uniqueCategories = [...new Set(events.map(e => e.category.toUpperCase()))];
+            uniqueCategories.forEach(cat => {
+                filterContainer.innerHTML += `
+                    <button onclick="filterEvents('${cat}', this)" class="filter-btn">${cat}</button>
+                `;
+            });
+        }
+
+        function renderEvents(eventsToRender) {
+            const grid = document.getElementById('event-grid');
+            grid.innerHTML = ''; 
+            
+            if (eventsToRender.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" data-aos="zoom-in">
+                        <span style="font-size: 3rem; display: block; margin-bottom: 1rem;">🌑</span>
+                        <h3 style="letter-spacing: 2px;">VOID DETECTED</h3>
+                        <p style="opacity: 0.6;">No events match this frequency. Try another stream.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            eventsToRender.forEach((event, index) => {
+                const date = new Date(event.date_time).toLocaleDateString('en-GB', {
+                    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+                });
+
+                grid.innerHTML += `
+                    <div class="event-card" data-aos="fade-up" data-aos-delay="${index * 50}">
+                        <div style="height: 220px; background: #1a1a1a; background-image: url('${event.image_url || "/static/default.jpg"}'); background-size: cover; background-position: center;"></div>
+                        <div style="padding: 2rem;">
+                            <span style="color: var(--sand); font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">${event.category}</span>
+                            <h3 style="margin: 0.8rem 0; font-weight: 900; line-height: 1.2;">${event.title}</h3>
+                            <p style="font-size: 0.8rem; color: var(--sand); font-weight: 600; margin-bottom: 1.5rem; opacity: 0.8;">
+                                <i class="far fa-calendar-alt"></i> ${date} • ${event.location}
+                            </p>
+                            <a href="/event-details?id=${event.id}" class="btn-primary" style="width: 100%; text-align: center; display: block; font-size: 0.7rem;">VIEW INTEL</a>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function filterEvents(category, btnElement) {
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(b => b.classList.remove('active'));
+            if(btnElement) btnElement.classList.add('active');
+
+            if (category === 'all') {
+                renderEvents(allEvents);
+            } else {
+                const filtered = allEvents.filter(e => e.category.toUpperCase() === category.toUpperCase());
+                renderEvents(filtered);
+            }
+        }
+
+        window.onload = loadEvents;
+    </script>
+</body>
+</html>

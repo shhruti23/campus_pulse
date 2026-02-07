@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard | Campus Pulse</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            background-color: var(--obsidian);
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 280px;
+            background-color: var(--dark-grey);
+            border-right: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            padding: 30px 20px;
+        }
+        
+        .sidebar .logo {
+            margin-bottom: 50px;
+            padding-left: 15px;
+        }
+
+        .nav-links {
+            list-style: none;
+            flex: 1;
+        }
+
+        .nav-links li { margin-bottom: 8px; }
+
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--pearl);
+            opacity: 0.6;
+            padding: 14px 18px;
+            border-radius: 12px;
+            transition: var(--transition);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background-color: var(--glass-bg);
+            color: var(--crimson);
+            opacity: 1;
+            border: 1px solid var(--glass-border);
+        }
+
+        .logout-btn {
+            color: #ff4444 !important;
+            border: 1px solid rgba(255, 68, 68, 0.2) !important;
+        }
+
+        /* --- MAIN CONTENT --- */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .dash-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .dash-header h1 { font-size: 1.5rem; font-weight: 900; color: var(--pearl); }
+        .date { color: var(--sand); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; }
+
+        /* --- STATS CARDS --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--dark-grey);
+            padding: 30px;
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: var(--transition);
+        }
+        
+        .stat-card:hover { border-color: var(--crimson); transform: translateY(-5px); }
+
+        .stat-info h3 { color: var(--sand); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+        .stat-info p { font-size: 2.5rem; font-weight: 900; color: var(--pearl); }
+
+        .stat-icon {
+            font-size: 1.8rem;
+            color: var(--crimson);
+            opacity: 0.8;
+        }
+
+        /* --- CHART SECTION --- */
+        .chart-panel {
+            background: var(--dark-grey);
+            padding: 35px;
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            height: 450px;
+        }
+
+        .chart-panel h3 { 
+            color: var(--pearl); 
+            font-size: 0.9rem; 
+            text-transform: uppercase; 
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <div class="logo">CAMPUS<span>PULSE</span></div>
+        <ul class="nav-links">
+            <li><a href="/dashboard" class="active"><i class="fas fa-th-large"></i> Overview</a></li>
+            <li><a href="/admin"><i class="fas fa-calendar-alt"></i> Events</a></li>
+            <li><a href="/scanner"><i class="fas fa-qrcode"></i> Scanner</a></li>
+            <li style="margin-top: 40px;"><a href="#" onclick="handleLogout()" class="logout-btn"><i class="fas fa-power-off"></i> Logout</a></li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <header class="dash-header">
+            <div>
+                <p class="date" id="current-date">--</p>
+                <h1>Analytics Overview</h1>
+            </div>
+            <div class="user-pill" style="color: var(--sand); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px;">
+                <i class="fas fa-shield-alt" style="margin-right: 8px;"></i> ADMIN ACCESS
+            </div>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>Active Events</h3>
+                    <p id="count-events">0</p>
+                </div>
+                <i class="fas fa-bolt stat-icon"></i>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>Total Users</h3>
+                    <p id="count-users">0</p>
+                </div>
+                <i class="fas fa-user-friends stat-icon"></i>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>Registrations</h3>
+                    <p id="count-regs">0</p>
+                </div>
+                <i class="fas fa-ticket-alt stat-icon"></i>
+            </div>
+        </div>
+
+        <div class="chart-panel">
+            <h3>Event Participation Distribution</h3>
+            <canvas id="eventsChart"></canvas>
+        </div>
+    </main>
+
+    <script>
+        // Set Local Date
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('en-US', options);
+
+        async function loadDashboardData() {
+            try {
+                const response = await fetch('/events/data/stats');
+                if (response.status === 401) window.location.href = '/login';
+                
+                const data = await response.json();
+
+                // Update Counters
+                document.getElementById("count-events").innerText = data.total_events;
+                document.getElementById("count-users").innerText = data.total_users;
+                document.getElementById("count-regs").innerText = data.total_registrations;
+
+                renderChart(data.chart_labels, data.chart_data);
+            } catch (error) {
+                console.error("Dashboard Error:", error);
+            }
+        }
+
+        function renderChart(labels, counts) {
+            const ctx = document.getElementById('eventsChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: counts,
+                        backgroundColor: '#710014',
+                        borderRadius: 12,
+                        barThickness: 35
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(179, 143, 111, 0.1)' }, ticks: { color: '#B38F6F' } },
+                        x: { grid: { display: false }, ticks: { color: '#B38F6F' } }
+                    }
+                }
+            });
+        }
+
+        async function handleLogout() {
+            const res = await fetch('/auth/logout', { method: 'POST' });
+            if (res.ok) window.location.href = '/';
+        }
+
+        loadDashboardData();
+    </script>
+</body>
+</html>

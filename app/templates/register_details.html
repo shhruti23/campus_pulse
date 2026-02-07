@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Profile | Campus Pulse</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: var(--obsidian);
+            color: var(--pearl);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: var(--dark-grey);
+            padding: 3.5rem;
+            border-radius: 30px;
+            width: 100%;
+            max-width: 450px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+            backdrop-filter: blur(10px);
+        }
+
+        h2 {
+            font-size: 2rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+            margin-bottom: 0.5rem;
+            color: var(--pearl);
+        }
+
+        .subtitle {
+            color: var(--sand);
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 2.5rem;
+            opacity: 0.8;
+        }
+
+        .input-readonly {
+            background: rgba(255, 255, 255, 0.03) !important;
+            border: 1px dashed var(--glass-border) !important;
+            color: var(--sand) !important;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-card">
+        <h2>One Last Step</h2>
+        <p class="subtitle">Complete your Pulse Identity</p>
+        
+        <form action="/complete-profile" method="POST">
+            <div class="input-group">
+                <label class="input-label">Identity / Full Name</label>
+                <input type="text" class="form-input input-readonly" value="{{ user.full_name }}" readonly>
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">Mobile Contact</label>
+                <input type="text" name="mobile_number" class="form-input" placeholder="+91 XXXXX XXXXX" required>
+            </div>
+            
+            <div class="input-group" style="margin-bottom: 2.5rem;">
+                <label class="input-label">Academic Branch / Department</label>
+                <input type="text" name="branch" class="form-input" placeholder="e.g., Computer Science" required>
+            </div>
+            
+            <button type="submit" class="btn-primary" style="width: 100%; letter-spacing: 2px;">SYNCHRONIZE PROFILE</button>
+        </form>
+    </div>
+
+</body>
+</html>

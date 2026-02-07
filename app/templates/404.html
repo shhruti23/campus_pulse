@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 | Page Not Found - Campus Pulse</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            text-align: center; 
+            background: var(--obsidian); 
+            color: var(--pearl); 
+            padding: 20px;
+        }
+        
+        .error-container {
+            max-width: 600px;
+        }
+
+        h1 { 
+            font-size: clamp(5rem, 15vw, 10rem); 
+            margin: 0; 
+            color: var(--crimson); 
+            font-weight: 900; 
+            line-height: 1; 
+            letter-spacing: -5px;
+        }
+
+        h2 {
+            font-size: clamp(1.5rem, 5vw, 2.5rem);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+            color: var(--sand);
+        }
+
+        p { 
+            color: var(--pearl); 
+            opacity: 0.6;
+            margin-bottom: 2.5rem; 
+            font-size: 1.1rem; 
+            font-weight: 300;
+        }
+
+        .btn-primary {
+            padding: 1rem 3rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="logo" style="margin-bottom: 2rem;">Campus<span>Pulse</span></div>
+        <h1>404</h1>
+        <h2>Signal Lost</h2>
+        <p>The event you are looking for has been moved, deleted, or never existed in the campus pulse.</p>
+        <a href="/" class="btn-primary">Back to Dashboard</a>
+    </div>
+</body>
+</html>

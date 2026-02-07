@@ -1,0 +1,20 @@
+# Environments
+venv/
+env/
+.env
+
+# Databases
+*.db
+*.sqlite3
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Uploads & Media
+app/static/uploads/*
+!app/static/uploads/.gitkeep
+
+# OS files
+.DS_Store
+Thumbs.db

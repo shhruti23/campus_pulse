@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Details | Campus Pulse</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body { background-color: var(--obsidian); color: var(--pearl); }
+        
+        .details-container { 
+            max-width: 900px; 
+            margin: 4rem auto; 
+            padding: 3rem; 
+            background: var(--dark-grey); 
+            border-radius: 30px; 
+            border: 1px solid var(--glass-border); 
+        }
+
+        .event-header-img { 
+            width: 100%; 
+            height: 400px; 
+            object-fit: cover; 
+            border-radius: 20px; 
+            margin-bottom: 2.5rem; 
+            border: 1px solid var(--glass-border); 
+        }
+
+        .meta-tag { 
+            display: inline-block; 
+            padding: 6px 16px; 
+            background: var(--crimson); 
+            color: var(--pearl); 
+            font-size: 0.7rem; 
+            border-radius: 100px; 
+            margin-bottom: 1.5rem; 
+            font-weight: 800; 
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .info-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 2rem; 
+            margin: 2.5rem 0; 
+            padding: 2rem 0; 
+            border-top: 1px solid var(--glass-border); 
+            border-bottom: 1px solid var(--glass-border); 
+        }
+
+        .info-item label { 
+            color: var(--sand); 
+            font-size: 0.7rem; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            font-weight: 800;
+        }
+
+        .info-item span { 
+            font-size: 1.1rem; 
+            font-weight: 600; 
+            display: block;
+            margin-top: 5px;
+        }
+
+        .capacity-bar {
+            height: 8px;
+            background: var(--glass-bg);
+            border-radius: 10px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .capacity-fill {
+            height: 100%;
+            background: var(--crimson);
+            width: 0%;
+            transition: width 1s ease;
+        }
+
+        .btn-register.disabled {
+            background: #333;
+            cursor: not-allowed;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">CAMPUS<span>PULSE</span></div>
+        <a href="/" class="nav-links" style="opacity: 1;">&larr; ALL EVENTS</a>
+    </nav>
+
+    <div class="container">
+        <div id="loading" style="text-align: center; margin-top: 5rem; color: var(--sand);">
+            <p>Syncing pulse data...</p>
+        </div>
+
+        <div id="event-content" class="details-container" style="display: none;">
+            <img id="e-image" src="" alt="Event Poster" class="event-header-img">
+            <span id="e-category" class="meta-tag">CATEGORY</span>
+            <h1 id="e-title" style="font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900; line-height: 1; margin-bottom: 1rem;">Event Title</h1>
+            
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Timeline</label>
+                    <span id="e-date">-</span>
+                </div>
+                <div class="info-item">
+                    <label>Venue</label>
+                    <span id="e-location">-</span>
+                </div>
+                <div class="info-item">
+                    <label>Availability</label>
+                    <span id="e-capacity">Detecting...</span>
+                    <div class="capacity-bar"><div id="capacity-fill" class="capacity-fill"></div></div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 3rem;">
+                <label class="input-label" style="color: var(--sand); margin-bottom: 1rem;">Intel / Description</label>
+                <p id="e-desc" style="color: var(--pearl); opacity: 0.8; line-height: 1.8; font-size: 1.05rem; white-space: pre-wrap;">-</p>
+            </div>
+            
+            <a id="registerLink" href="#" class="btn-primary" style="width: 100%; text-align: center;">SECURE ACCESS</a>
+        </div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const eventId = params.get('id');
+
+        async function loadEventDetails() {
+            if (!eventId) {
+                window.location.href = '/404';
+                return;
+            }
+            try {
+                const response = await fetch(`/events/${eventId}`);
+                if (!response.ok) throw new Error("Event not found");
+                const event = await response.json();
+
+                document.getElementById('e-image').src = event.image_url || "/static/default.jpg";
+                document.getElementById('e-category').innerText = event.category;
+                document.getElementById('e-title').innerText = event.title;
+                document.getElementById('e-location').innerText = event.location;
+                document.getElementById('e-desc').innerText = event.description;
+                document.getElementById('e-date').innerText = new Date(event.date_time).toLocaleDateString('en-GB', {
+                    day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+
+                // Capacity Logic
+                const capacityText = document.getElementById('e-capacity');
+                const fill = document.getElementById('capacity-fill');
+                const regLink = document.getElementById('registerLink');
+
+                if (event.max_participants > 0) {
+                    const percent = (event.current_registrations / event.max_participants) * 100;
+                    capacityText.innerText = `${event.current_registrations} / ${event.max_participants} Spots Taken`;
+                    fill.style.width = `${percent}%`;
+
+                    if (event.current_registrations >= event.max_participants) {
+                        regLink.innerText = "EVENT FULL";
+                        regLink.classList.add('disabled');
+                    } else {
+                        regLink.href = `/register-event/${eventId}`;
+                    }
+                } else {
+                    capacityText.innerText = "Open Registration";
+                    fill.style.width = "10%";
+                    regLink.href = `/register-event/${eventId}`;
+                }
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('event-content').style.display = 'block';
+            } catch (err) {
+                document.getElementById('loading').innerHTML = `<p style="color: var(--crimson)">Error: ${err.message}</p>`;
+            }
+        }
+
+        window.onload = loadEventDetails;
+    </script>
+</body>
+</html>

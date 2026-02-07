@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Participants | {{ event.title }}</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: var(--obsidian); color: var(--pearl); }
+        
+        .table-container { 
+            overflow-x: auto; 
+            background: var(--dark-grey); 
+            border-radius: 20px; 
+            border: 1px solid var(--glass-border); 
+            margin-top: 2rem;
+        }
+
+        table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        
+        th, td { padding: 18px 25px; text-align: left; border-bottom: 1px solid var(--glass-border); }
+        
+        th { 
+            background: var(--glass-bg); 
+            color: var(--sand); 
+            text-transform: uppercase; 
+            font-size: 0.7rem; 
+            letter-spacing: 2px; 
+            font-weight: 800;
+        }
+
+        tr:hover { background: rgba(255, 255, 255, 0.02); }
+        
+        /* Badge Styles */
+        .badge { 
+            padding: 5px 12px; 
+            border-radius: 100px; 
+            font-size: 0.65rem; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+            border: 1px solid transparent;
+        }
+        
+        .badge-solo { background: rgba(179, 143, 111, 0.1); color: var(--sand); border-color: var(--glass-border); }
+        .badge-team { background: rgba(113, 0, 20, 0.1); color: var(--crimson); border-color: rgba(113, 0, 20, 0.3); }
+        .badge-cat { background: var(--glass-bg); color: var(--pearl); border-color: var(--glass-border); }
+
+        /* Action Link Styles - Fixes VS Code Errors */
+        .action-link {
+            font-size: 0.7rem; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+            text-decoration: none;
+        }
+
+        .status-blocked { color: var(--pearl); } /* Style for Unblock link */
+        .status-active { color: var(--crimson); } /* Style for Block link */
+
+        .team-name { color: var(--pearl); font-weight: 800; font-size: 0.9rem; }
+        .team-info { font-size: 0.75rem; color: var(--sand); margin-top: 4px; opacity: 0.8; }
+
+        @media print {
+            nav, .btn-primary, .block-link { display: none !important; }
+            body { background: white !important; color: black !important; }
+            .table-container { border: none; background: white; }
+            th { background: #f0f0f0 !important; color: black !important; border: 1px solid #ddd; }
+            td { border: 1px solid #ddd; color: black !important; }
+            .badge { border: 1px solid #000 !important; color: black !important; background: transparent !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">CAMPUS<span>PULSE</span></div>
+        <ul class="nav-links">
+            <li><a href="/admin" style="opacity: 1;">&larr; BACK TO EVENTS</a></li>
+        </ul>
+    </nav>
+
+    <div class="container" style="padding-top: 40px; padding-bottom: 80px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1rem;">
+            <div>
+                <span class="input-label" style="margin-bottom: 5px;">Participant Manifest</span>
+                <h1 style="font-size: 2.5rem; font-weight: 900; line-height: 1; color: var(--pearl);">{{ event.title }}</h1>
+                <p style="color: var(--sand); font-weight: 600; margin-top: 10px; font-size: 0.85rem;">
+                    COUNT: {{ registrations|length }} PERSONNEL DETECTED
+                </p>
+            </div>
+            <button onclick="window.print()" class="btn-primary" style="padding: 0.8rem 1.5rem; font-size: 0.7rem;">
+                🖨️ GENERATE HARDCOPY
+            </button>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Student Entity</th>
+                        <th>Department / Contact</th>
+                        <th>Mode</th>
+                        <th>Category</th>
+                        <th>Deployment Details</th>
+                        <th class="block-link">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reg in registrations %}
+                    <tr>
+                        <td style="color: var(--sand); font-weight: 800; font-size: 0.8rem;">{{ "%02d" % loop.index }}</td>
+                        
+                        <td>
+                            <div style="font-weight: 800; color: var(--pearl);">{{ reg.student.full_name }}</div>
+                            <div style="font-size: 0.75rem; color: var(--sand); opacity: 0.7;">{{ reg.student.email }}</div>
+                        </td>
+                        
+                        <td>
+                            <div style="font-weight: 600;">{{ reg.student.branch }}</div>
+                            <div style="font-size: 0.75rem; color: var(--sand); opacity: 0.7;">{{ reg.student.mobile_number }}</div>
+                        </td>
+
+                        <td>
+                            {% if reg.participation_type == 'Solo' %}
+                                <span class="badge badge-solo">Solo</span>
+                            {% else %}
+                                <span class="badge badge-team">{{ reg.participation_type }}</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <span class="badge badge-cat">{{ reg.participation_category }}</span>
+                        </td>
+
+                        <td>
+                            {% if reg.participation_type != 'Solo' %}
+                                <div class="team-name">{{ reg.team_name }}</div>
+                                <div class="team-info">{{ reg.team_members }}</div>
+                            {% else %}
+                                <span style="opacity: 0.2;">--</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="block-link">
+                            {% if reg.student.is_blocked %}
+                                <a href="/admin/toggle-block/{{ reg.student.id }}" class="action-link status-blocked">
+                                    UNBLOCK
+                                </a>
+                            {% else %}
+                                <a href="/admin/toggle-block/{{ reg.student.id }}" class="action-link status-active">
+                                    BLOCK
+                                </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 5rem; color: var(--sand); font-weight: 600; letter-spacing: 1px;">
+                            NO DATA STREAMS FOUND FOR THIS EVENT
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

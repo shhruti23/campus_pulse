@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Event | Campus Pulse Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav>
+        <div class="logo">CAMPUS<span>PULSE</span></div>
+        <div class="nav-links">
+            <a href="/admin">Back to Manage Events</a>
+        </div>
+    </nav>
+
+    <div class="container" style="display: flex; justify-content: center; align-items: center; min-height: 90vh; padding: 40px 0;">
+        <div class="admin-card" style="margin: 0; max-width: 600px;">
+            <h2 style="margin-bottom: 30px; color: var(--crimson); letter-spacing: 2px;">EDIT EVENT</h2>
+            
+            <form id="editEventForm">
+                <input type="hidden" id="event_id" value="{{ event.id }}">
+
+                <div class="input-group">
+                    <label class="input-label">Event Title</label>
+                    <input type="text" id="title" class="form-input" value="{{ event.title }}" required>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Description</label>
+                    <textarea id="description" class="form-input" rows="4" required>{{ event.description }}</textarea>
+                </div>
+
+                <div class="row-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="input-group">
+                        <label class="input-label">Category</label>
+                        <input type="text" id="category" class="form-input" value="{{ event.category }}" required>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Max Capacity</label>
+                        <input type="number" id="max_participants" class="form-input" value="{{ event.max_participants or 0 }}">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">Venue / Location</label>
+                    <input type="text" id="location" class="form-input" value="{{ event.location }}" required>
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">Update Poster Image</label>
+                    <input type="file" id="posterFile" class="form-input" accept="image/*">
+                    <small style="color: var(--sand); font-size: 0.7rem; display: block; margin-top: 5px;">
+                        Current: {{ event.image_url if event.image_url else 'No image' }}
+                    </small>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Date & Time</label>
+                    <input type="datetime-local" id="date_time" class="form-input" 
+                           value="{{ event.date_time.strftime('%Y-%m-%dT%H:%M') }}" required>
+                </div>
+
+                <button type="submit" class="btn-primary" style="width: 100%;">SAVE CHANGES</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('editEventForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const eventId = document.getElementById('event_id').value;
+            let imageUrl = "{{ event.image_url }}"; // Keep old URL by default
+            const fileInput = document.getElementById('posterFile');
+            
+            // 1. If a new file is selected, upload it first
+            if (fileInput.files.length > 0) {
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                try {
+                    const uploadRes = await fetch('/events/upload-poster', { method: 'POST', body: formData });
+                    const uploadData = await uploadRes.json();
+                    imageUrl = uploadData.image_url;
+                } catch (err) {
+                    console.error("Upload failed", err);
+                }
+            }
+
+            // 2. Prepare JSON data for the backend
+            const eventData = {
+                title: document.getElementById('title').value,
+                description: document.getElementById('description').value,
+                category: document.getElementById('category').value,
+                location: document.getElementById('location').value,
+                max_participants: parseInt(document.getElementById('max_participants').value),
+                date_time: document.getElementById('date_time').value,
+                image_url: imageUrl
+            };
+
+            // 3. Send PUT request (or POST depending on your backend implementation)
+            const response = await fetch(`/events/${eventId}`, {
+                method: 'PATCH', // Using PATCH for partial updates
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(eventData)
+            });
+
+            if (response.ok) {
+                alert("Event updated successfully!");
+                window.location.href = '/admin';
+            } else {
+                const error = await response.json();
+                alert("Update failed: " + (error.detail || "Unknown error"));
+            }
+        });
+    </script>
+</body>
+</html>

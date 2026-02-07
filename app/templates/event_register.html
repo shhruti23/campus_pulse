@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Event | Campus Pulse</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            background-color: var(--obsidian); 
+            color: var(--pearl); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            padding: 20px;
+        }
+        
+        .reg-card { 
+            width: 100%; 
+            max-width: 500px; 
+            background: var(--dark-grey); 
+            padding: 3rem; 
+            border-radius: 30px; 
+            border: 1px solid var(--glass-border); 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3); 
+        }
+        
+        h2 { 
+            margin-bottom: 1.5rem; 
+            color: var(--crimson); 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            letter-spacing: 2px;
+        }
+
+        .event-summary { 
+            background: var(--glass-bg); 
+            padding: 20px; 
+            border-radius: 15px; 
+            margin-bottom: 2rem; 
+            border: 1px solid var(--glass-border); 
+        }
+
+        .error-alert {
+            color: #ff4d4d; 
+            background: rgba(255, 77, 77, 0.1); 
+            padding: 12px; 
+            margin-bottom: 20px; 
+            border-radius: 10px; 
+            font-size: 0.85rem;
+            border: 1px solid rgba(255, 77, 77, 0.2);
+        }
+
+        .hidden { display: none; }
+        
+        /* Transition for team fields */
+        #teamFields {
+            animation: slideDown 0.4s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="reg-card">
+        <h2>REGISTRATION</h2>
+        
+        <div class="event-summary">
+            <strong style="font-size: 1rem; color: var(--pearl);">{{ event.title }}</strong><br>
+            <span style="font-size: 0.75rem; color: var(--sand); font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
+                {{ event.date_time.strftime('%d %B, %Y') }} • {{ event.location }}
+            </span>
+        </div>
+
+        {% if error %}
+            <div class="error-alert">⚠️ {{ error }}</div>
+        {% endif %}
+
+        <form method="POST" action="/register-event/{{ event.id }}">
+            
+            <div class="input-group">
+                <label class="input-label">Performance Category</label>
+                <select name="participation_category" class="form-input" style="appearance: none;" required>
+                    <option value="" disabled selected>Select a Category</option>
+                    <option value="Dance">Dance</option>
+                    <option value="Song">Song / Music</option>
+                    <option value="Skit">Drama / Skit</option>
+                    <option value="Poetry">Poetry / Storytelling</option>
+                    <option value="Fashion">Fashion Show</option>
+                    <option value="Tech">Technical / Coding</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">Participation Type</label>
+                <select name="participation_type" id="typeSelect" class="form-input" onchange="toggleFields()" required>
+                    <option value="Solo">Solo</option>
+                    <option value="Duo">Duo (2 Members)</option>
+                    <option value="Group">Group (3+ Members)</option>
+                </select>
+            </div>
+
+            <div id="teamFields" class="hidden">
+                <div class="input-group">
+                    <label class="input-label">Group / Team Name</label>
+                    <input type="text" name="team_name" class="form-input" placeholder="e.g. The Rockstars">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Team Members (Names)</label>
+                    <textarea name="team_members" class="form-input" rows="3" placeholder="Rahul, Priya, Amit..."></textarea>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary" style="width: 100%;">CONFIRM ENTRY</button>
+            
+            <a href="/event-details?id={{ event.id }}" style="display:block; text-align:center; margin-top:20px; color:var(--sand); text-decoration:none; font-size:0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">
+                Cancel Request
+            </a>
+        </form>
+    </div>
+
+    <script>
+        function toggleFields() {
+            const type = document.getElementById('typeSelect').value;
+            const teamSection = document.getElementById('teamFields');
+            const nameInput = document.getElementsByName('team_name')[0];
+            const membersInput = document.getElementsByName('team_members')[0];
+            
+            if (type === 'Duo' || type === 'Group') {
+                teamSection.classList.remove('hidden');
+                nameInput.required = true;
+                membersInput.required = true;
+            } else {
+                teamSection.classList.add('hidden');
+                nameInput.required = false;
+                membersInput.required = false;
+                nameInput.value = "";
+                membersInput.value = "";
+            }
+        }
+    </script>
+</body>
+</html>
