@@ -13,7 +13,8 @@ Campus Pulse is a centralized platform designed to streamline event management, 
 
 **Role-Based Access: Separate interfaces and permissions for students and Master Admins.** 
 
-### 🛠️ Tech Stack
+## 🛠️ Tech Stack
+
 Backend: FastAPI (Python)
 
 Database: SQLAlchemy with SQLite
@@ -24,7 +25,8 @@ Authentication: JWT (JSON Web Tokens) with HTTP-only Cookies
 
 Tools: QR Code generation library, Pillow
 
-#### ⚙️ Setup & Installation
+## ⚙️ Setup & Installation
+
 1. Clone the Repository
 Bash
 git clone https://github.com/YourUsername/campus-pulse.git
@@ -54,8 +56,8 @@ Bash
 uvicorn app.main:app --reload
 Access the application at: http://127.0.0.1:8000
 
-##### 📁 Project Structure
-Plaintext
+## 📁 Project Structure
+
 campus_pulse/
 ├── app/
 │   ├── auth.py          # JWT & Hashing Logic
@@ -68,5 +70,5 @@ campus_pulse/
 ├── requirements.txt     # Dependency List
 └── superuser.py         # Admin Initialization Script
 
-###### 📝 License
+## 📝 License
 Distributed under the MIT License. See LICENSE for more information.
